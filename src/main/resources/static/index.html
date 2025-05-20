@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Gráfico de Pontos</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        #myChart {
+            max-width: 600px;
+            margin-top: 30px;
+        }
+        .form-group {
+            margin-bottom: 10px;
+        }
+        label {
+            display: block;
+            margin-bottom: 4px;
+        }
+        input[type="number"] {
+            width: 200px;
+            padding: 4px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Enviar e Exibir Gráfico</h1>
+
+<form id="meuFormulario">
+    <div class="form-group">
+        <label for="n">n (tamanho máximo do problema):</label>
+        <input type="number" id="n" name="n" required>
+    </div>
+    <div class="form-group">
+        <label for="passo">Incremento:</label>
+        <input type="number" id="passo" name="passo" required>
+    </div>
+    <button type="submit">Enviar</button>
+</form>
+
+<canvas id="myChart"></canvas>
+
+<script>
+    const ctx = document.getElementById('myChart').getContext('2d');
+    let chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            datasets: [{
+                label: 'Tempo (s)',
+                data: [],
+                parsing: false,
+                borderColor: 'rgba(75, 192, 192, 1)',
+                fill: false,
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                x: {
+                    type: 'linear',
+                    title: {
+                        display: true,
+                        text: 'n'
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Tempo (s)'
+                    }
+                }
+            }
+        }
+    });
+
+    document.getElementById('meuFormulario').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const n = parseInt(document.getElementById('n').value, 10);
+        const passo = parseInt(document.getElementById('passo').value, 10);
+
+        fetch('/bigo', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ n: n, passo: passo })
+        })
+            .then(response => response.json())
+            .then(data => {
+                // data deve ser uma lista de objetos {x: ..., y: ...}
+                chart.data.datasets[0].data = data;
+                chart.update();
+            })
+            .catch(error => {
+                console.error('Erro ao buscar dados:', error);
+            });
+    });
+</script>
+
+</body>
+</html>
