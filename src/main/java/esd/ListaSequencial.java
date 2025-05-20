@@ -48,11 +48,11 @@ public class ListaSequencial <T> {
     }
 
     public int procura(T valor) {
-
+        return -1;
     }
 
     public T obtem(int indice) {
-
+        return null;
     }
 
     public int comprimento() {
